@@ -10,18 +10,18 @@
 
 Ось що відбувається з кожним із трьох дерев фреймворку:
 
-- **Дерево Віджетів (Widget Tree):** Ця гілка дерева перестворюється повністю. Старий об'єкт віджета `Text("Початковий текст")` знищується, а замість нього конструюється новий об'єкт `Text("Текст змінено!")`. Оскільки віджети є легковажними об'єктами, їхнє перестворення є дуже дешевою операцією.
+- **Дерево Віджетів (Widget Tree):** Ця гілка дерева перестворюється повністю. Старий об'єкт віджета `Text` знищується, а замість нього конструюється новий з оновленим текстом. Оскільки віджети є легковажними об'єктами, їхнє перестворення є дуже дешевою операцією.
 
 - **Дерево Елементів (Element Tree):** Це дерево залишається стабільним. Flutter порівнює старий віджет із новим за допомогою методу `Widget.canUpdate()`. Оскільки тип віджета не змінився (був `Text` і залишився `Text`), відповідний `StatelessElement` не знищується. Він просто оновлює своє посилання на новий віджет.
 
-- **Дерево Рендеру (RenderObject Tree):** Переживає перебудову без перестворення. Елемент сповіщає свій об'єкт рендерингу (`RenderParagraph`), що конфігурація змінилася. Рендер-об'єкт отримує новий рядок і викликає `markNeedsPaint()`. Фреймворк просто перемальовує пікселі нового тексту на екрані.
+- **Дерево Рендеру (RenderObject Tree):** Переживає перебудову без перестворення. Елемент сповіщає свій об'єкт рендерингу `RenderParagraph`, що конфігурація змінилася. Рендер-об'єкт отримує новий рядок і викликає `markNeedsPaint()`. Фреймворк просто перемальовує пікселі нового тексту на екрані.
 
 ### Діаграма 1. Механізм оновлення стану (Зміна тексту)
 
 ```mermaid
 graph TD
-    W[Widget Tree: Text updated] -->|1. canUpdate| E[Element Tree: Update reference]
-    E -->|2. markNeedsPaint| R[RenderObject Tree: Repaint text]
+    WidgetTree[Widget Tree: Text updated] -->|1. canUpdate| ElementTree[Element Tree: Update reference]
+    ElementTree -->|2. markNeedsPaint| RenderTree[RenderObject Tree: Repaint text]
 ```
 
 ---
@@ -41,16 +41,14 @@ graph TD
 
 Це найбільш ресурсомістка операція у Flutter, оскільки фреймворку доводиться заново виділяти пам'ять і будувати зв'язки з нуля.
 
----
-
 ### Діаграма 2. Механізм зміни типу віджета
 
 ```mermaid
 graph TD
-    OldE[Old ColumnElement] -->|Type changed| D1(Destroy Element)
-    OldR[Old RenderFlexible] -->|Remove from tree| D2(Memory Clean)
-    NewW[New Container Widget] --> NewE[Create New Element]
-    NewE --> NewR[Create New RenderObject]
+    OldElement[Old ColumnElement] -->|Type changed| DestroyElement[Destroy Element]
+    OldRender[Old RenderFlexible] -->|Remove from tree| MemoryClean[Memory Clean]
+    NewWidget[New Container Widget] --> NewElement[Create New Element]
+    NewElement --> NewRender[Create New RenderObject]
 ```
 
 ---
